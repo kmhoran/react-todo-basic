@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import DeckReducer from './DeckReducer';
+import DeckReducer from './deckReducer';
 
 const appReducer = combineReducers({
     deck: DeckReducer

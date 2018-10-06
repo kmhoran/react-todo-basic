@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import listApi from '../services/homesite/listApi';
 import DeckActions from "../actions/deckActions";
+import { LoadingScreen } from './loadingScreen';
 
 import {
     withStyles,
@@ -17,7 +18,7 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 
-const DECK_ID = 0;
+const DECK_ID = 1;
 
 const styles = theme => ({
     root: {
@@ -32,17 +33,15 @@ const styles = theme => ({
     }
 });
 class Deck extends React.Component {
-    state = {blankCard:"initial"};
+    state = { blankCard: "initial" };
 
-    componentDidMount = () =>{
-        console.log("[deck] fetching lists!");
-        const lists = listApi.GetAllLists();
+    componentDidMount = () => {
     }
-    
+
     generate = () => {
         return this.props.cardsByDeck[DECK_ID].map(card => (
             <ListItem key={card.id}>
-                <ListItemText primary={card.description} />
+                <ListItemText primary={card.text} />
                 <ListItemSecondaryAction>
                     <IconButton
                         aria-label="Delete"
@@ -58,27 +57,36 @@ class Deck extends React.Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        
+
+        let newCard = {
+            cardId: + new Date(),
+            text: this.state.blankCard,
+            ordinal: + new Date(),
+            deckId: DECK_ID,
+            dateCreated: '2019-10-05T00:00:00Z',
+            isComplete: false
+        };
+
         if (this.state.blankCard !== "") {
 
             // callback to add card data to store
-            const callback = (context) =>{
+            const callback = (context) => {
                 const {
                     error,
                     deckId,
                     card
                 } = context;
-                if(error) console.log("[deck] and error occurred: ", error);
-                if(deckId && card){
+                if (error) console.log("[deck] and error occurred: ", error);
+                if (deckId && card) {
                     this.props.createCard(deckId, card);
                 }
             }
 
             // send add request to api
             listApi.AddCardToDeck(
-                callback, 
-                DECK_ID.toString(), 
-                this.state.blankCard)
+                callback,
+                DECK_ID.toString(),
+                newCard)
         }
         this.setState({ blankCard: "" });
     };
@@ -86,7 +94,7 @@ class Deck extends React.Component {
 
     handleDelete = event => {
         // delete the item from the store
-        this.props.deleteCard(DECK_ID.toString(),event.target.value);
+        this.props.deleteCard(DECK_ID.toString(), event.target.value);
     };
 
     handleChange = event => {
@@ -95,10 +103,13 @@ class Deck extends React.Component {
         });
     };
     render() {
-        const { 
+        const {
             classes,
             decks } = this.props;
-            const deck = decks[DECK_ID]
+        const deck = decks[DECK_ID]
+        if (!deck) {
+            return (<LoadingScreen/>)
+        }
         return (
             <div>
                 <div>

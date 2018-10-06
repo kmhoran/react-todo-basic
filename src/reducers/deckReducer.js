@@ -18,12 +18,15 @@ const defaultState = {
 };
 const DeckReducer = (state = defaultState, action) => {
   switch (action.type) {
+    case ActionTypes.POPULATE_DECKS:{
+      return action.decks;
+    }
+
     case ActionTypes.CREATE_CARD: {
       let newState = _.cloneDeep(state);
 
       // cardsByDeck update
-      let card = action.card;
-      let newCard = { id: state.cardsByDeck[action.deckId].length + 1, description: card };
+      let newCard = action.card;
       newState.cardsByDeck[action.deckId].push(newCard);
 
       // userDecks update

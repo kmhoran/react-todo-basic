@@ -1,8 +1,8 @@
 import ActionTypes from '../constants/actionTypes';
 
-const populateLists = lists =>({
-  type: ActionTypes.POPULATE_LISTS,
-  payload: lists
+const populateLists = decks =>({
+  type: ActionTypes.POPULATE_DECKS,
+  decks
 })
 
 const addDeck = (deckId, cardArray) =>({
