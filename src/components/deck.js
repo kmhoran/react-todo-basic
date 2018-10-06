@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import listApi from '../persitence/listApi';
-import todoActions from "../actions/todoActions";
+import listApi from '../services/homesite/listApi';
+import DeckActions from "../actions/deckActions";
 
 import {
     withStyles,
@@ -16,6 +16,9 @@ import {
     FormControl
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
+
+const DECK_ID = 0;
+
 const styles = theme => ({
     root: {
         flexGrow: 1,
@@ -28,23 +31,23 @@ const styles = theme => ({
         margin: `${theme.spacing.unit * 4}px 0 ${theme.spacing.unit * 2}px`
     }
 });
-class ToDO extends React.Component {
-    state = {item:"initial"};
+class Deck extends React.Component {
+    state = {blankCard:"initial"};
 
     componentDidMount = () =>{
-        console.log("fetching lists!");
+        console.log("[deck] fetching lists!");
         const lists = listApi.GetAllLists();
     }
     
     generate = () => {
-        return this.props.items.map(item => (
-            <ListItem key={item.id}>
-                <ListItemText primary={item.description} />
+        return this.props.cardsByDeck[DECK_ID].map(card => (
+            <ListItem key={card.id}>
+                <ListItemText primary={card.description} />
                 <ListItemSecondaryAction>
                     <IconButton
                         aria-label="Delete"
                         onClick={this.handleDelete}
-                        value={item.id}
+                        value={card.id}
                     >
                         <DeleteIcon />
                     </IconButton>
@@ -55,41 +58,62 @@ class ToDO extends React.Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        console.log(this.state.item);
         
-        if (this.state.item !== "") {
-            // add the item to the store
-            this.props.createItem(this.state.item);
+        if (this.state.blankCard !== "") {
+
+            // callback to add card data to store
+            const callback = (context) =>{
+                const {
+                    error,
+                    deckId,
+                    card
+                } = context;
+                if(error) console.log("[deck] and error occurred: ", error);
+                if(deckId && card){
+                    this.props.createCard(deckId, card);
+                }
+            }
+
+            // send add request to api
+            listApi.AddCardToDeck(
+                callback, 
+                DECK_ID.toString(), 
+                this.state.blankCard)
         }
-        this.setState({ item: "" });
+        this.setState({ blankCard: "" });
     };
 
 
     handleDelete = event => {
         // delete the item from the store
-        this.props.deleteItem(event.target.value);
+        this.props.deleteCard(DECK_ID.toString(),event.target.value);
     };
 
     handleChange = event => {
-        console.log(`[todo] onchange name ${event.target.name} value ${event.target.value}`)
         this.setState({
             [event.target.name]: event.target.value
         });
     };
     render() {
-        const { classes } = this.props;
+        const { 
+            classes,
+            decks } = this.props;
+            const deck = decks[DECK_ID]
         return (
             <div>
+                <div>
+                    <h1>{deck.displayName} : {deck.cardCount}</h1>
+                </div>
                 <div>
                     <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
                         <FormControl>
                             <TextField
                                 label="New Task"
                                 id="margin-dense"
-                                value={this.state.item}
+                                value={this.state.blankCard}
                                 className={classes.textField}
                                 margin="dense"
-                                name="item"
+                                name="blankCard"
                                 onChange={this.handleChange}
                             />
                         </FormControl>
@@ -112,17 +136,19 @@ class ToDO extends React.Component {
 
 
 const mapStateToProps = state => ({
-    items: state.todo.items
+    cardsByDeck: state.deck.cardsByDeck,
+    decks: state.deck.userDecks
+
 });
 
 
 const mapDispatchToProps = dispatch => ({
-    createItem: item => dispatch(todoActions.createItem(item)),
-    deleteItem: id => dispatch(todoActions.deleteItem(id))
+    createCard: (deckId, card) => dispatch(DeckActions.createCard(deckId, card)),
+    deleteCard: (deckId, cardId) => dispatch(DeckActions.deleteCard(deckId, cardId))
 });
 
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles)(ToDO));
+)(withStyles(styles)(Deck));

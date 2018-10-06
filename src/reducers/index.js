@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import todoReducer from './todoReducer';
+import DeckReducer from './DeckReducer';
 
 const appReducer = combineReducers({
-    todo: todoReducer
+    deck: DeckReducer
 })
 
 export default appReducer;

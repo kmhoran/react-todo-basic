@@ -1,7 +1,9 @@
 const ActionTypes = {
-        POPULATE_LISTS: "POPULATE_LISTS",
-        CREATE_ITEM: "CREATE_ITEM",
-        DELETE_ITEM: "DELETE_ITEM"
+        POPULATE_DECKS: "POPULATE_DECKS",
+        ADD_DECK: "ADD_DECK",
+        CREATE_CARD: "CREATE_CARD",
+        DELETE_CARD: "DELETE_CARD",
+        
 }
 
 export default ActionTypes;

@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 
-import ToDO from "./components/todo";
+import Deck from "./components/deck";
 import { Provider as ReduxProvider } from "react-redux";
 import configureStore from "./store/index";
 
@@ -19,7 +19,7 @@ class App extends Component {
             <img src={logo} className="App-logo" alt="logo" />
             <h1 className="App-title">Todo Redux App</h1>
           </header>
-          <ToDO/>
+          <Deck/>
         </div>
       </ReduxProvider>
     );
